@@ -120,6 +120,8 @@ float LowPassFilter(float32 PreOut, float32 Input, float32 CutFre);
 #define	PROTECT_COUNT		10
 #define	TRIP_COUNT			5
 
+#define LED_BLINKING_COUNT		5000
+
 //======================================= Variables ===========================================================================
 
 //Test
@@ -245,6 +247,7 @@ Uint16 	stop = 0, stop_A = 0, stop_B = 0, stop_C = 0;
 Uint16 	st = 0;
 Uint16  delay_set = 0;
 Uint32  delay_counter = 0;
+Uint32  led_count = 0;
 
 Uint16 	short_circuit = 0;
 Uint16 	short_sw = 0;
@@ -358,6 +361,12 @@ for (;;) {
 
 //	Keep sending message to BBB 10ms once
 
+	if (led_count > LED_BLINKING_COUNT)
+	{
+		GpioDataRegs.GPATOGGLE.bit.GPIO15 = 1 ;
+		led_count = 0;
+	}
+
 		if (ecan_count >= 10000)
 		{
 			ecan_count 	= 0;
@@ -376,6 +385,8 @@ for (;;) {
 interrupt void cpu_timer0_isr(void) {
 	time2change++;
 	ecan_count++;								// period to send ecan: 100 x 100us = 10ms
+	led_count++;
+
 //	if (mode_change == 1)		mode_change_counter++;
 	if (delay_set == 1) delay_counter++;
 	ADC_Calculation();
