@@ -88,8 +88,8 @@ float LowPassFilter(float32 PreOut, float32 Input, float32 CutFre);
 #define	deltaP			0.2					//threshold of PV power MPPT mode
 #define MPPT_ADC_COUNT	300
 
-#define vPV_min 		100
-#define vPV_max 		320
+#define vPV_min 		200
+#define vPV_max 		300
 #define PRECHARGING_DELAY  20000
 
 
