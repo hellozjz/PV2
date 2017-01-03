@@ -188,6 +188,10 @@ float 	viC = 0, viC_sum = 0, viC_ave = 0;
 float 	vo = 0, vo_sum  = 0, vo_ave  = 0;
 float 	io = 0, io_sum  = 0, io_ave  = 0;
 float 	i_in_ave = 0;
+float	iA_BBB=0;
+float	iB_BBB=0;
+float	iC_BBB=0;
+
 
 Uint16  ConversionCount = 0;
 float 	ConversionCount1;
@@ -661,13 +665,15 @@ void BAT_Send_To_BBB(){
 			BAT_Send_Data_Canbus(fault_message1, fault_message2, reserve, BAT_MESSAGE_5_INDEX);
 }
 void PV_Send_To_BBB(){
-			iiA_int		= (int16) (iiA_ave*10);
-			iiB_int		= (int16) (iiB_ave*10);
-			iiC_int		= (int16) (iiC_ave*10);
+			iiA_int		= (int16) (iA_BBB*10);
+			iiB_int		= (int16) (iB_BBB*10);
+			iiC_int		= (int16) (iC_BBB*10);
 			PV_Send_Data_Canbus(iiA_int, iiB_int, iiC_int, PV_MESSAGE_1_INDEX);
 			viA_int		= (int16) (viA_ave*10);
 			viB_int		= (int16) (viB_ave*10);
 			viC_int		= (int16) (viC_ave*10);
+
+
 			PV_Send_Data_Canbus(viA_int, viB_int, viC_int, PV_MESSAGE_2_INDEX);
 			ref_vol_confirm_A_int		= (int16) (reference_vol_A*10);
 			ref_power_confirm_A_int		= (int16) (reference_power_A*10);
@@ -1748,6 +1754,28 @@ if (delay_set == 0) {
 			}
 				break;
 		}
+		case MPPT:
+				{
+					if(mode_B != MPPT)
+					{
+						vref_B = vPV_max;
+						duty_max_B = period;
+						duty_min_B = period;
+						duty_min_set_B = 1;
+						mode_B = MPPT;
+						CONVERTER_STATUS = 1;
+						CH2_ONOFF_STATUS = 1;
+						LED_RUN_ON();
+						LED_STOP_OFF();
+
+						sum_viB = 0;
+						sum_iiB = 0;
+						ave_viB = viB_ave;
+						ave_iiB = iiB_ave;
+						k = 0;
+					}
+					break;
+				}
 
 		case IDLE:
 		{
@@ -2003,6 +2031,10 @@ void ADC_Calculation(){
 	io_ave  = io_sum*ConversionCount1;
 
 	i_in_ave = (iiA_ave + iiB_ave + iiC_ave)*0.333;
+
+	iA_BBB = LowPassFilter(iA_BBB, iiA_ave, 0.5);
+	iB_BBB = LowPassFilter(iB_BBB, iiB_ave, 0.5);
+	iC_BBB = LowPassFilter(iC_BBB, iiC_ave, 0.5);
 
 	viA_sum = 0;
 	viB_sum = 0;
@@ -2365,7 +2397,7 @@ void MPPT_PO(){
 
 		}
 // Channel B
-	if (mode_B == MPPT) //MPPT
+	/*if (mode_B == MPPT) //MPPT
 	{
 			PowerPV_B = viB_ave * iiB_ave;
 
@@ -2385,7 +2417,41 @@ void MPPT_PO(){
 			}
 			if (vref_B <= vPV_min)			vref_B = vPV_min;   //PV reference voltage saturation
 			if (vref_B >= vPV_max)			vref_B = vPV_max;
-	}
+	}*/
+
+//Channel B
+		if (mode_B == MPPT)
+			{
+					sum_viB = sum_viB + viB_ave;
+					sum_iiB = sum_iiB + iiB_ave;
+					k++;
+					if (k >= (MPPT_ADC_COUNT - 1))
+					{
+						k = 0;
+						ave_viB = sum_viB / MPPT_ADC_COUNT;
+						ave_iiB = sum_iiB / MPPT_ADC_COUNT - 0.6;
+						sum_viB = 0;
+						sum_iiB = 0;
+
+						PowerPV_B = ave_viB * ave_iiB;
+						if ((PowerPV_B - PowerPV_B_pre) < -deltaP)
+						{
+							epsilon_B = -epsilon_B;
+							vref_B= vref_B_pre + epsilon_B;
+						}
+						else if ((PowerPV_B - PowerPV_B_pre) > deltaP)
+						{
+							vref_B= vref_B_pre + epsilon_B;
+						}
+						else
+						{
+							vref_B= vref_B_pre;
+						}
+						if (vref_B <= vPV_min)			vref_B = vPV_min;   //PV reference voltage saturation
+						if (vref_B >= vPV_max)			vref_B = vPV_max;
+
+					}
+			}
 
 // Channel C
 	 //MPPT
@@ -2409,7 +2475,7 @@ void MPPT_PO(){
 //			if (vref_C <= vPV_min)			vref_C = vPV_min;   //PV reference voltage saturation
 //			if (vref_C >= vPV_max)			vref_C = vPV_max;
 //	}
-//	chanel c
+//	channel c
 	
 	if (mode_C == MPPT)
 	{
