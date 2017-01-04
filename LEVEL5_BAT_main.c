@@ -280,7 +280,7 @@ float32	testing = 0;
 
 Uint32  led_count = 0; 					//For LED Blinking
 Uint32  ecan_guard_count = 0;
-Uint32	ecan_error_count = 0;
+Uint16	ecan_error_count = 0;
 
 extern Uint32 device_id;
 extern int variable_index;

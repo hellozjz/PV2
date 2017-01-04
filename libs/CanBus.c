@@ -208,7 +208,7 @@ void send_data(int16 MBXnbr, struct CAN_DATA can_data)
 	do
 	{
 		ECanbShadow.CANTA.all = ECanbRegs.CANTA.all;
-	} while (ECanbShadow.CANTA.all == 0);   // Wait for TA5 bit to be set..
+	} while (ECanbShadow.CANTA.all == 0 && (ecan_guard_count < ECAN_GUARD_COUNT_MAX));   // Wait for TA5 bit to be set..
 
 	ECanbRegs.CANTA.all = 0x1 << MBXnbr;   // Clear TAn
 	}
