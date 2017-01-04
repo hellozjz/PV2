@@ -8,11 +8,16 @@
 
 // Global variable
 
+#define ECAN_GUARD_COUNT_MAX	1000	//1 FOR 100us
+
 struct MBOX can_msg;
 struct ECAN_REGS ECanbShadow;
 int16 new_data = FALSE;
 struct CAN_DATA can_data2;
 struct CAN_DATA can_data;
+
+extern volatile Uint32 ecan_guard_count;
+extern Uint16 ecan_error_count;
 
 void configureEcanB(void) {
 
@@ -178,6 +183,15 @@ void send_data(int16 MBXnbr, struct CAN_DATA can_data)
 {
 
 	volatile struct MBOX *Mailbox;
+	ecan_guard_count = 0;
+
+	if(ECanbRegs.CANES.bit.CCE == 1)
+		{
+			//reinit ecan
+			configureEcanB();
+			ecan_error_count++;
+		}
+		else{
 
 	Mailbox = &ECanbMboxes.MBOX0 + MBXnbr;
 
@@ -197,6 +211,7 @@ void send_data(int16 MBXnbr, struct CAN_DATA can_data)
 	} while (ECanbShadow.CANTA.all == 0);   // Wait for TA5 bit to be set..
 
 	ECanbRegs.CANTA.all = 0x1 << MBXnbr;   // Clear TAn
+	}
 //******************used for transmit end*****************
 }
 

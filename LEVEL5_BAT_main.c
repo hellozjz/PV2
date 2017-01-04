@@ -1,7 +1,8 @@
 /* ****************************************************************************************************
  * File name: main.c		//	for DC/DC converter: Battery and PV converter
  * Written by: Nguyen Xuan Bac
- * Last updated: Apr 18, 2016														  				  *
+ * Edited by: Zhang Zhe
+ * Last updated: 04 Jan 2017													  				  *
  *******************************************************************************************************/
 #include "DSP28x_Project.h"
 #include "IQmathlib.h"
@@ -190,7 +191,8 @@ float 	viC = 0, viC_sum = 0, viC_ave = 0;
 float 	vo = 0, vo_sum  = 0, vo_ave  = 0;
 float 	io = 0, io_sum  = 0, io_ave  = 0;
 float 	i_in_ave = 0;
-float	iA_BBB=0;
+
+float	iA_BBB=0;		// ---->for low pass filter send to GUI
 float	iB_BBB=0;
 float	iC_BBB=0;
 
@@ -247,7 +249,6 @@ Uint16 	stop = 0, stop_A = 0, stop_B = 0, stop_C = 0;
 Uint16 	st = 0;
 Uint16  delay_set = 0;
 Uint32  delay_counter = 0;
-Uint32  led_count = 0;
 
 Uint16 	short_circuit = 0;
 Uint16 	short_sw = 0;
@@ -277,7 +278,9 @@ Uint32 	time2change = 0;
 Uint16	test = 0, test_duty = 0, test1 = 0;
 float32	testing = 0;
 
-
+Uint32  led_count = 0; 					//For LED Blinking
+Uint32  ecan_guard_count = 0;
+Uint32	ecan_error_count = 0;
 
 extern Uint32 device_id;
 extern int variable_index;
@@ -386,6 +389,7 @@ interrupt void cpu_timer0_isr(void) {
 	time2change++;
 	ecan_count++;								// period to send ecan: 100 x 100us = 10ms
 	led_count++;
+	ecan_guard_count++;
 
 //	if (mode_change == 1)		mode_change_counter++;
 	if (delay_set == 1) delay_counter++;
