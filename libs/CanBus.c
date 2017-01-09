@@ -188,7 +188,17 @@ void send_data(int16 MBXnbr, struct CAN_DATA can_data)
 	if(ECanbRegs.CANES.bit.CCE == 1)
 		{
 			//reinit ecan
-			configureEcanB();
+			//configureEcanB();
+		EALLOW;
+		ECanbShadow.CANMC.all = ECanbRegs.CANMC.all;
+		ECanbShadow.CANMC.bit.CCR = 1;            // Set CCR = 0
+		ECanbRegs.CANMC.all = ECanbShadow.CANMC.all;
+
+		ECanbShadow.CANMC.all = ECanbRegs.CANMC.all;
+		ECanbShadow.CANMC.bit.CCR = 0;            // Set CCR = 0
+		ECanbRegs.CANMC.all = ECanbShadow.CANMC.all;
+		EDIS;
+
 			ecan_error_count++;
 		}
 		else{
