@@ -70,7 +70,7 @@ float LowPassFilter(float32 PreOut, float32 Input, float32 CutFre);
 #define offset_a1_pv 	2056//2037//2042//	2063		//ADC_A2	ADCINA2		V4	vDC		2072
 #define offset_a2_pv 	2047//2036//2038//	2042		//ADC_A3	ADCINA3		V3	Vw		2037
 #define offset_a3_pv 	2057//2047//2044//	2061		//ADC_A4	ADCINA4		I2	Iv		2044
-#define offset_a4_pv 	2068//2047//2044//	2062		//ADC_A5	ADCINA5		I1	Iu		2044
+#define offset_a4_pv 	2060//2047//2044//	2062		//ADC_A5	ADCINA5		I1	Iu		2044
 #define offset_a5_pv 	2054//2031//2033//	2055		//ADC_A7	ADCINA7		V1	Vu		2058
 #define offset_b6_pv 	2041//2037//2035//	2059		//ADC_A6	ADCINA6		V2	Vv		2035
 #define offset_b7_pv 	2066//2046//2043//	2065		//ADC_B7	ADCINB7		I4	iDC		2043
@@ -107,7 +107,7 @@ float LowPassFilter(float32 PreOut, float32 Input, float32 CutFre);
 // Test
 #define	IMMEDIATE_STOP_DC_VOL		450
 #define OFF_THRESHOLD_OVER_DC_VOL	420			//BAT shutdown
-#define PV_THRESHOLD_OVER_DC_VOL	400			//PV shutdown
+#define PV_THRESHOLD_OVER_DC_VOL	450			//PV PD to vrm
 #define BAT_THRESHOLD_OVER_DC_VOL	395			//BAT auto transition
 #define	BAT_THRESHOLD_LOW_DC_VOL	3//65			//BAT auto transition
 #define	OFF_THRESHOLD_LOW_DC_VOL	3//40			//PV and BAT shutdown
